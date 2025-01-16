@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Carga masiva de productos e inventarios supermercado</title>
+    <style>
+        *,
+        *::after,
+        *::before {
+            margin: 0;
+            padding: 0;
+            box-sizing: inherit;
+            font-size: 100%;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: rgba(161, 206, 192, 0.9);
+        }
+        
+        form {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -200px;
+            margin-left: -250px;
+            width: 500px;
+            height: 200px;
+        }
+        
+        form p {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            line-height: 170px;
+            color: #ffffff;
+        }
+        
+        #file {
+            position: absolute;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            outline: none;
+            opacity: 0;
+        }
+        
+        #border {
+            position: relative;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #inner-border {
+            position: absolute;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            border: 4px dashed #fff;
+        }
+        
+        form button {
+            margin: 0;
+            color: #fff;
+            background: #16a085;
+            border: none;
+            width: 508px;
+            height: 35px;
+            margin-top: -20px;
+            margin-left: -4px;
+            border-radius: 4px;
+            border-bottom: 4px solid #117A60;
+            transition: all .2s ease;
+            outline: none;
+        }
+        
+        form button:hover {
+            background: #149174;
+            color: #0C5645;
+        }
+        
+        form button:active {
+            border: 0;
+        }
+        
+        #top-alerts {
+            color: white;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -280px;
+            margin-left: -250px;
+            width: 500px;
+            padding: 10px;
+            background-color: #99bd4f;
+            border-radius: 10px;
+        }
+        
+        #top-alerts-error {
+            color: white;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -280px;
+            margin-left: -250px;
+            width: 500px;
+            padding: 10px;
+            background-color: #bd4f4f;
+            border-radius: 10px;
+        }
+        
+        .form__label {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.2rem;
+            margin-left: 2rem;
+            margin-top: 0.7rem;
+            display: block;
+            /*transition: all 0.3s;*/
+            /*transform: translateY(0rem);*/
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .form__input {
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+            font-size: 1.2rem;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            border-radius: 0.2rem;
+            background-color: rgb(255, 255, 255);
+            border: none;
+            width: 90%;
+            display: block;
+            border-bottom: 0.3rem solid transparent;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="top-alerts" style="display: none">
+        <div id="file-sent">
+            El archivo fue enviado exitosamente, sera procesado en un momento, si existe algun error, se le avisara por correo
+        </div>
+    </div>
+    <div id="top-alerts-error" style="display: none">
+        <div id="file-error">
+            <span id="error-message"> Ocurrio un error, favor comunicarte con el administrador </span>
+        </div>
+    </div>
+    <form action="/upload" method="POST" encType="multipart/form-data">
+        <div class="form__group">
+            <label class="form__label" for="id">ID proyecto o modelo</label>
+        </div>
+        <div class="form__group">
+            <select class="form__input" id="type" name="type" required>
+                <option value="">Selecciona una acción</option>
+                <option value="pre-sales-models">(PreVentas) Carga de modelos</option>
+                <option value="pre-sales-units">(PreVentas) Carga de unidades</option>
+                <option value="pre-sales-financial">(PreVentas) Actualizar datos financieros</option>
+                <option value="polygons-create">(Polygons) Cargar poligonos</option>
+            </select>
+            <label class="form__label" for="type">Selecciona el archivo csv</label>
+        </div>
+        <div id="border">
+            <div id="inner-border">
+                <input id="file" type="file" name="csv">
+                <p>Drag your files here or click in this area.</p>
+            </div>
+        </div>
+        <button type="submit">Cargar información</button>
+    </form>
+    <script src="//code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            if (urlParams.get('status') === 'success') {
+                $('#top-alerts').show();
+                setTimeout(function() {
+                    window.location.replace('/');
+                }, 5000);
+            } else if (urlParams.get('status') === 'error') {
+                const errorCode = getErrorByCode(urlParams.get('code'));
+                const customErrorMessage = urlParams.get('message');
+                if (customErrorMessage) {
+                    $('#error-message').text("Error, " + customErrorMessage);
+                } else {
+                    $('#error-message').text(errorCode);
+                }
+                $('#top-alerts-error').show();
+                setTimeout(function() {
+                    window.location.replace('/');
+                }, 8000);
+            }
+
+            $('#file').change(function() {
+                $('form p').text(this.files.length + " file(s) selected");
+            });
+        });
+
+        function getErrorByCode(errorCode) {
+            switch (errorCode) {
+                case "1001":
+                    return "Error, archivo csv es requerido para la operación"
+                default:
+                    return "Error, ocurrio un error inesperado al momento de realizar la carga correspondiente, valida con el administrador del sistema";
+            }
+        }
+    </script>
+</body>
+
+</html>
