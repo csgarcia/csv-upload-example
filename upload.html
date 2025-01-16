@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Carga masiva de productos e inventarios supermercado</title>
+    <title>Lector de CSV</title>
     <style>
         *,
         *::after,
@@ -162,17 +162,14 @@
         <div class="form__group">
             <select class="form__input" id="type" name="type" required>
                 <option value="">Selecciona una acción</option>
-                <option value="pre-sales-models">(PreVentas) Carga de modelos</option>
-                <option value="pre-sales-units">(PreVentas) Carga de unidades</option>
-                <option value="pre-sales-financial">(PreVentas) Actualizar datos financieros</option>
-                <option value="polygons-create">(Polygons) Cargar poligonos</option>
+                <option value="pre-sales-models">Transformar en JSON</option>
             </select>
             <label class="form__label" for="type">Selecciona el archivo csv</label>
         </div>
         <div id="border">
             <div id="inner-border">
                 <input id="file" type="file" name="csv">
-                <p>Drag your files here or click in this area.</p>
+                <p>Arrastre sus archivos a esta zona.</p>
             </div>
         </div>
         <button type="submit">Cargar información</button>
