@@ -43,24 +43,25 @@ app.post("/upload", (req, res) => {
       }
       res.redirect(url);
     })
-    .catch((error) => {
-      console.error(error);
+    .catch((e) => {
+      console.error(e);
+      res.status(500).send({ error: e.message });
     });
 });
 
 const convertFile = (file) => {
   return new Promise((resolve, reject) => {
-    let models = [];
+    let items = [];
     fs.createReadStream(file.tempFilePath)
       .pipe(csv.parse({ headers: true }))
       .on("error", (err) => {
         reject(err);
       })
       .on("data", (row) => {
-        console.log({ current_row: row });
+        items.push(row);
       })
       .on("end", async (rowCount) => {
-        console.log({ rowCount });
+        console.log({ rowCount, itemsLength: items.length });
         return resolve({ success: true });
       });
   });
